@@ -1,22 +1,31 @@
-import { useContext } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useContext } from "react";
+import { useParams } from "react-router-dom";
 import { AnimeContext } from "../contexts/context";
+import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
 
-export default function Anime() {
+const Anime = () => {
   const { id } = useParams();
   const animeContext = useContext(AnimeContext);
 
-  // Verifica se o objeto anime está vazio ou se attributes não está definido
+  // Procura o anime no contexto com o ID fornecido
   const anime = animeContext.getAnime(id);
-  if (!anime || !anime.attributes) {
-    return <p>Anime não encontrado.</p>;
+
+  // Verifica se o anime foi encontrado ou não
+  if (!anime) {
+    return (
+      <>
+        <NavBar />
+        <div className="container">
+          <p>Anime não encontrado.</p>
+        </div>
+      </>
+    );
   }
 
   return (
     <>
-      <button style={{ marginLeft: "20px", marginTop: "20px" }}>
-        <Link to={`/`} style={{ color: "white" }}>Voltar</Link>
-      </button>
+      <NavBar />
       <div className="container">
         <h3>{anime.attributes.canonicalTitle}</h3>
         <div className="animeInformation">
@@ -27,6 +36,9 @@ export default function Anime() {
           </div>
         </div>
       </div>
+      <Footer/>
     </>
   );
-}
+};
+
+export default Anime;

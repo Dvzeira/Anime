@@ -1,49 +1,40 @@
-import { useContext, useState } from "react";
-import { AnimeContext } from "../contexts/context";
+import { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { AnimeContext } from "../contexts/context";
+import NavBar from "../components/NavBar";
+import Footer from "../components/Footer";
 
 const Home = () => {
   const anime = useContext(AnimeContext);
-  const [textSearch, setTextSearch] = useState('');
 
-  const requestApi = async (anime) => {
-    const url = "https://kitsu.io/api/edge";
-    const response = await fetch(`${url}/anime?filter[text]=${anime}&page[limit]=12`);
-    const data = await response.json();
-    return data.data;
-  };
+  useEffect(() => {
+    const requestApi = async () => {
+      const url = "https://kitsu.io/api/edge";
+      const response = await fetch(`${url}/anime?page[limit]=20`);
+      const data = await response.json();
+      anime.animeRequest(data.data);
+    };
 
-  const handleApi = async (animeText) => {
-    const data = await requestApi(animeText);
-    anime.animeRequest(data);
-    console.log(data);
-  };
+    requestApi();
+  }, []);
 
   return (
     <>
-      <div className="pesquisar">
-        <label htmlFor="">Escreva o nome do Anime</label>
-        <div>
-          <input type="text" value={textSearch} onChange={(ev) => setTextSearch(ev.target.value)} />
-          <button onClick={() => handleApi(textSearch)} style={{ margin: "10px" }}>Pesquisar</button>
-        </div>
-      </div>
+      <NavBar />
       <section>
         {anime.animeData && anime.animeData.length > 0 ? (
           anime.animeData.map((anm) => {
-            console.log(anm);
-            const attributes = anm.attributes || {}; // Verifica se 'attributes' existe no objeto 'anm'
-            const posterImage = attributes.posterImage || {}; // Verifica se 'posterImage' existe em 'attributes'
-            const canonicalTitle = attributes.canonicalTitle || 'Título não disponível'; // Defina um valor padrão caso 'canonicalTitle' não exista
-
+            console.log(anm)
             return (
               <div className="boxAnimes" key={anm.id}>
-                <img src={posterImage.small} alt="" />
+                <img src={anm.attributes.posterImage.small} alt="" />
                 <div className="ver">
-                  <p>{canonicalTitle}</p>
-                  <button>
-                    <Link to={`${anm.id}/anime`}>Ver</Link>
-                  </button>
+                  <p>{anm.attributes.canonicalTitle}</p>
+                  <Link to={`/${anm.id}/anime`}>
+                    <button>Detalhes</button>
+                  </Link>
+
+
                 </div>
               </div>
             );
@@ -52,8 +43,9 @@ const Home = () => {
           <p>Nenhum anime encontrado.</p>
         )}
       </section>
+      <Footer/>
     </>
   );
-}
+};
 
 export default Home;
